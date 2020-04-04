@@ -6,6 +6,7 @@ services:
     volumes:
       - portainer:/data
     environment:
+      # can be generated like: date | md5sum
       AGENT_SECRET: 0c41adac4dc4923b6878ad764b4a6f29
     networks:
       - public
@@ -14,6 +15,10 @@ services:
       - target: 9000
         published: ${PORTAINER_PORT:-9000}
         mode: host
+# can be generated like: htpasswd -nbB admin 'password' | cut -d ":" -f 2
+# $ chars must be escaped with another $
+#    command: |
+#      --admin-password '$$2y$$05$$SVreprWSOrnKG6qp9QDMYuVAnNyHo/kqNQcwRUGBOqCMuetjKwX3S'
 
   agent:
     image: portainer/agent
