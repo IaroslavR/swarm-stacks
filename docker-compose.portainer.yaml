@@ -7,7 +7,7 @@ services:
       - portainer:/data
     environment:
       # can be generated like: date | md5sum
-      AGENT_SECRET: 0c41adac4dc4923b6878ad764b4a6f29
+      AGENT_SECRET: ${AGENT_SECRET:-0c41adac4dc4923b6878ad764b4a6f29}
     networks:
       - public
       - portainer
@@ -15,8 +15,7 @@ services:
       - target: 9000
         published: ${PORTAINER_PORT:-9000}
         mode: host
-# can be generated like: htpasswd -nbB admin 'password' | cut -d ":" -f 2
-# $ chars must be escaped with another $
+#   can be generated like: htpasswd -nbB admin 'password' | cut -d ":" -f 2 | sed -e s/\\$/\\$\\$/g
 #    command: |
 #      --admin-password '$$2y$$05$$SVreprWSOrnKG6qp9QDMYuVAnNyHo/kqNQcwRUGBOqCMuetjKwX3S'
 
@@ -29,7 +28,7 @@ services:
       - portainer
     environment:
       AGENT_CLUSTER_ADDR: tasks.agent
-      AGENT_SECRET: 0c41adac4dc4923b6878ad764b4a6f29
+      AGENT_SECRET: ${AGENT_SECRET:-0c41adac4dc4923b6878ad764b4a6f29}
     deploy:
       mode: global
       placement:

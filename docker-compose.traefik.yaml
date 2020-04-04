@@ -23,6 +23,7 @@ services:
     volumes:
       # To persist certificates
       - traefik-certificates:/letsencrypt
+      - ./.htpasswd:/auth/.htpasswd
     command:
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
@@ -47,18 +48,21 @@ services:
       - 443:443
     labels:
       traefik.enable: "true"
-      traefik.http.routers.traefik.middlewares: traefik-auth
-      # can be generated like: echo $(htpasswd -nb user password) | sed -e s/\\$/\\$\\$/g
-      traefik.http.middlewares.traefik-auth.basicauth.users: user:$$apr1$$EIGvhK9C$$f7Xi/M/fu8kJhlZpjy/cx0
+#     Single user
+#     can be generated like: echo $(htpasswd -nb user password) | sed -e s/\\$/\\$\\$/g
+#      traefik.http.middlewares.traefik-auth.basic-auth-single.users: user:$$apr1$$EIGvhK9C$$f7Xi/M/fu8kJhlZpjy/cx0
+#     From file
+      traefik.http.middlewares.basic-auth.basicauth.usersfile: /auth/.htpasswd
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
       traefik.http.routers.traefik.rule: Host(`${HOST_NAME}`)
       traefik.http.routers.traefik.entrypoints: https
-      traefik.http.routers.traefik.tls: "true"
-      traefik.http.routers.traefik.tls.certresolver: leresolver
+      traefik.http.routers.traefik.middlewares: basic-auth
       traefik.http.routers.traefik.service: api@internal
-      traefik.http.routers.traefik-http.rule: hostregexp(`{host:.+}`)
+      traefik.http.routers.traefik.tls.certresolver: leresolver
+      traefik.http.routers.traefik.tls: "true"
       traefik.http.routers.traefik-http.entrypoints: http
       traefik.http.routers.traefik-http.middlewares: redirect-to-https
+      traefik.http.routers.traefik-http.rule: hostregexp(`{host:.+}`)
 
   # https://github.com/containous/traefik/issues/4174#issuecomment-446564816:
   traefik-socket:
