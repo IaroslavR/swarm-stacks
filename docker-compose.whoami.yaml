@@ -11,14 +11,14 @@ services:
       traefik.http.routers.whoami-http.middlewares: redirect-to-https
       traefik.http.routers.whoami-http.rule: hostregexp(`{host:.+}`)
       traefik.http.routers.whoami.entrypoints: https
-      traefik.http.routers.whoami.rule: Host(`whoami.${HOST_NAME}`)
+      traefik.http.routers.whoami.rule: Host(`whoami.${TRAEFIK_HOST_NAME}`)
       traefik.http.routers.whoami.service: whoami
       traefik.http.routers.whoami.tls.certresolver: leresolver
       traefik.http.routers.whoami.tls: "true"
       traefik.http.services.whoami.loadbalancer.server.port: 80
 # Authenticator declared in the traefik stack
       traefik.http.routers.whoami.middlewares: basic-auth
-# Oun basicauth authenticator
+# Own basicauth authenticator
 #      traefik.http.routers.whoami.middlewares: auth
 #      traefik.http.middlewares.auth.basicauth.users: other-user:$$apr1$$EIGvhK9C$$f7Xi/M/fu8kJhlZpjy/cx0
 
