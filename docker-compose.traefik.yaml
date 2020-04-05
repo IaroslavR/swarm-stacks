@@ -27,7 +27,7 @@ services:
     command:
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
-      - --certificatesresolvers.leresolver.acme.email=${EMAIL}
+      - --certificatesresolvers.leresolver.acme.email=${TRAEFIK_LE_EMAIL}
       - --certificatesresolvers.leresolver.acme.tlschallenge=true
       - --certificatesresolvers.leresolver.acme.storage=/letsencrypt/acme.json
       # https://docs.traefik.io/v2.0/reference/static-configuration/cli/
@@ -54,7 +54,7 @@ services:
 #     From file
       traefik.http.middlewares.basic-auth.basicauth.usersfile: /auth/.htpasswd
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
-      traefik.http.routers.traefik.rule: Host(`${HOST_NAME}`)
+      traefik.http.routers.traefik.rule: Host(`${TRAEFIK_HOST_NAME}`)
       traefik.http.routers.traefik.entrypoints: https
       traefik.http.routers.traefik.middlewares: basic-auth
       traefik.http.routers.traefik.service: api@internal

@@ -7,17 +7,30 @@ services:
       - portainer:/data
     environment:
       # can be generated like: date | md5sum
-      AGENT_SECRET: ${AGENT_SECRET:-0c41adac4dc4923b6878ad764b4a6f29}
+      AGENT_SECRET: ${PORTAINER_AGENT_SECRET}
     networks:
       - public
       - portainer
-    ports:
-      - target: 9000
-        published: ${PORTAINER_PORT:-9000}
-        mode: host
+#   WARNING! exposure of port to the 0.0.0.0,
+#   https://fralef.me/docker-and-iptables.html
+#   https://github.com/moby/moby/issues/32299
+#    ports:
+#      - target: 9000
+#        published: ${PORTAINER_PORT:-9000}
 #   can be generated like: htpasswd -nbB admin 'password' | cut -d ":" -f 2 | sed -e s/\\$/\\$\\$/g
-#    command: |
-#      --admin-password '$$2y$$05$$SVreprWSOrnKG6qp9QDMYuVAnNyHo/kqNQcwRUGBOqCMuetjKwX3S'
+    command: |
+      --admin-password ${PORTAINER_PASSWORD}
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.portainer-http.entrypoints: http
+      traefik.http.routers.portainer-http.middlewares: redirect-to-https
+      traefik.http.routers.portainer-http.rule: hostregexp(`{host:.+}`)
+      traefik.http.routers.portainer.entrypoints: https
+      traefik.http.routers.portainer.rule: Host(`portainer.${TRAEFIK_HOST_NAME}`)
+      traefik.http.routers.portainer.service: portainer
+      traefik.http.routers.portainer.tls.certresolver: leresolver
+      traefik.http.routers.portainer.tls: "true"
+      traefik.http.services.portainer.loadbalancer.server.port: 9000
 
   agent:
     image: portainer/agent
@@ -28,7 +41,7 @@ services:
       - portainer
     environment:
       AGENT_CLUSTER_ADDR: tasks.agent
-      AGENT_SECRET: ${AGENT_SECRET:-0c41adac4dc4923b6878ad764b4a6f29}
+      AGENT_SECRET: ${PORTAINER_AGENT_SECRET}
     deploy:
       mode: global
       placement:
