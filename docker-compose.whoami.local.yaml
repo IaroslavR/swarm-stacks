@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+  whoami:
+    image: containous/whoami:v1.4.0
+    networks:
+      - public
+    command:
+      - --port=5000
+    labels:
+      traefik.enable: "true"
+#     HTTP & HTTPS allowed
+      traefik.http.routers.whoami.entrypoints: https
+      traefik.http.routers.whoami.rule: Host(`whoami.${TRAEFIK_HOST_NAME}`)
+      traefik.http.routers.whoami.tls: "true"
+      traefik.http.routers.whoami-http.entrypoints: http
+      traefik.http.routers.whoami-http.rule: Host(`whoami.${TRAEFIK_HOST_NAME}`)
+      traefik.http.routers.whoami.service: whoami
+      traefik.http.services.whoami.loadbalancer.server.port: 5000
+#     Authenticator declared in the traefik stack
+      traefik.http.routers.whoami.middlewares: basic-auth
+      traefik.http.routers.whoami-http.middlewares: basic-auth
+#     Own basicauth authenticator
+#      traefik.http.routers.whoami.middlewares: auth
+#      traefik.http.middlewares.auth.basicauth.users: other-user:$$apr1$$EIGvhK9C$$f7Xi/M/fu8kJhlZpjy/cx0
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 1
+        window: 5s
+      replicas: 1
+
+networks:
+  public:
+    external: true

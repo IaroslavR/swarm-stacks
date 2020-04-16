@@ -1,0 +1,56 @@
+version: '3.7'
+
+services:
+  portainer:
+    image: portainer/portainer:1.23.2
+    volumes:
+      - portainer:/data
+    environment:
+      # can be generated like: date | md5sum
+      AGENT_SECRET: ${PORTAINER_AGENT_SECRET}
+    networks:
+      - public
+      - portainer
+#   WARNING! exposure of port to the 0.0.0.0,
+#   https://fralef.me/docker-and-iptables.html
+#   https://github.com/moby/moby/issues/32299
+    ports:
+      - target: 9000
+        published: ${PORTAINER_PORT:-9000}
+#   can be generated like: htpasswd -nbB admin 'password' | cut -d ":" -f 2 | sed -e s/\\$/\\$\\$/g
+    command: |
+      --admin-password ${PORTAINER_PASSWORD}
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.portainer-http.entrypoints: http
+      traefik.http.routers.portainer-http.middlewares: redirect-to-https
+      traefik.http.routers.portainer-http.rule: hostregexp(`{host:.+}`)
+      traefik.http.routers.portainer.entrypoints: https
+      traefik.http.routers.portainer.rule: Host(`portainer.${TRAEFIK_HOST_NAME}`)
+      traefik.http.routers.portainer.service: portainer
+      traefik.http.routers.portainer.tls: "true"
+      traefik.http.services.portainer.loadbalancer.server.port: 9000
+
+  agent:
+    image: portainer/agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - portainer
+    environment:
+      AGENT_CLUSTER_ADDR: tasks.agent
+      AGENT_SECRET: ${PORTAINER_AGENT_SECRET}
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.platform.os == linux]
+
+volumes:
+  portainer:
+
+networks:
+  public:
+    external: true
+  portainer:
+    internal: true

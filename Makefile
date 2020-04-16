@@ -18,24 +18,38 @@ init-env:  ## Fill .env file
 
 init: init-swarm init-network ## Initial swarm setup
 
-start:  ## Stare all stacks
+start:  ## Stare server stacks
 	docker stack deploy portainer --compose-file=docker-compose.portainer.yaml
 	docker stack deploy traefik --compose-file=docker-compose.traefik.yaml
 	docker stack deploy whoami --compose-file=docker-compose.whoami.yaml
+
+start-local:  ## Stare local stacks
+	docker stack deploy portainer --compose-file=docker-compose.portainer.local.yaml
+	docker stack deploy traefik --compose-file=docker-compose.traefik.local.yaml
+	docker stack deploy whoami --compose-file=docker-compose.whoami.local.yaml
 
 stop:  ## Stop all stacks
 	docker stack rm portainer
 	docker stack rm traefik
 	docker stack rm whoami
 
-clean-swarm:  ## Delete public network and stop swarm
+clean-swarm:  ## Delete persistent containers, public network and stop swarm manager
 	- docker swarm leave --force
-	- docker network rm public
-	- docker volume rm portainer_portainer
-	- docker volume rm traefik_traefik-certificates
+	- docker network rm public traefik_traefik-socket portainer_portainer
+	- docker volume rm portainer_portainer traefik_traefik-certificates
 
 clean: stop  ## Stop stacks and prune unused docker objects
 	docker system prune
 
 fresh:  clean init-network  ## Start cleanup sequence
+
+init-certs:  ## Install local CA
+	mkcert -install
+
+clean-certs: ## Remove local CA and certs
+	mkcert -unistall
+	rm ./traefik/*.pem
+
+certs:  ## generate wildcard certificates for the swarm.home domain
+	cd traefik && mkcert *.swarm.home
 

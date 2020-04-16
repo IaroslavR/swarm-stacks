@@ -8,8 +8,9 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.whoami-http.entrypoints: http
-      traefik.http.routers.whoami-http.middlewares: redirect-to-https
-      traefik.http.routers.whoami-http.rule: hostregexp(`{host:.+}`)
+#      traefik.http.routers.whoami-http.middlewares: redirect-to-https
+#      HTTP & HTTPS enabled
+      traefik.http.routers.whoami-http.rule: Host(`whoami.${TRAEFIK_HOST_NAME}`)
       traefik.http.routers.whoami.entrypoints: https
       traefik.http.routers.whoami.rule: Host(`whoami.${TRAEFIK_HOST_NAME}`)
       traefik.http.routers.whoami.service: whoami

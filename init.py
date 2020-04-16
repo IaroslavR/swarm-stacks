@@ -24,18 +24,21 @@ def htpasswd(user, password):
 
 
 env = {
+    "SWARM_ADVERTISE_ADDR": input(
+        "Enter advertise address. "
+        "See https://docs.docker.com/engine/reference/commandline/swarm_init/#--advertise-addr "
+        "for details [192.168.43.176]"
+    ),
     "PORTAINER_PORT": input(
         "Enter portainer published port. "
         "For activate this future uncomment ports in the docker-compose.portainer.yaml "
         "[54492]: "
     ),
-    "SWARM_ADVERTISE_ADDR": input(
-        "Enter advertise address. "
-        "See https://docs.docker.com/engine/reference/commandline/swarm_init/#--advertise-addr "
-    ),
-    "TRAEFIK_HOST_NAME": input("Enter host name for traefik. [example.com]: "),
+    "TRAEFIK_HOST_NAME": input("Enter host name for traefik. [swarm.local]: "),
     "TRAEFIK_LE_EMAIL": input("Enter email for Let's Encrypt. [mail@example.com]: "),
 }
+if not env["SWARM_ADVERTISE_ADDR"]:
+    env["SWARM_ADVERTISE_ADDR"] = "192.168.43.176"
 if not env["PORTAINER_PORT"]:
     env["PORTAINER_PORT"] = "54492"
 portainer_p = random_pass()
@@ -54,7 +57,7 @@ print("Traefik credentials: \n{}\n{}".format(traefik_user, traefik_p))
 print("Traefik credentials saved to the .htpasswd")
 
 if not env["TRAEFIK_HOST_NAME"]:
-    env["TRAEFIK_HOST_NAME"] = "example.com"
+    env["TRAEFIK_HOST_NAME"] = "swarm.local"
 print("Host name will be saved to the .env file")
 
 if not env["TRAEFIK_LE_EMAIL"]:
