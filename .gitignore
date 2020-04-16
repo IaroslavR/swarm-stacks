@@ -1,3 +1,5 @@
 .idea
 /.env
 /.htpasswd
+/.mypy_cache/
+/traefik/*.pem
