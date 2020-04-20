@@ -14,12 +14,15 @@ init-network:  ## Init public swarm network
 	- docker network create -d overlay public
 
 init-env:  ## Fill .env file
+	touch .htpasswd
 	python init.py
 
 init: init-swarm init-network ## Initial swarm setup
 
-start:  ## Stare server stacks
+start-portainer:
 	docker stack deploy portainer --compose-file=docker-compose.portainer.yaml
+
+start: start-portainer ## Stare server stacks
 	docker stack deploy traefik --compose-file=docker-compose.traefik.yaml
 	docker stack deploy whoami --compose-file=docker-compose.whoami.yaml
 
