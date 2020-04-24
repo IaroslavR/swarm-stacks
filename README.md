@@ -15,7 +15,7 @@ Common docker swarm stacks
 1. `sudo systemctl reload NetworkManager`
 1. `make init`
 1. `make start-local`  
-after that, `portainer.swarm.home`, `traefik.swarm.home` and `whoami.swarm.home` will be available frm Crome and Firefox without errors.
+after that, `portainer.swarm.home`, `traefik.swarm.home` and `whoami.swarm.home` will be available from Chrome and Firefox with valid sertificates.
 
 ##### References
 - [MKCERT: Valid HTTPS certificates for localhost](https://blog.filippo.io/mkcert-valid-https-certificates-for-localhost/)
