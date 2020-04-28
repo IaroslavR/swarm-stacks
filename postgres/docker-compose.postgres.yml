@@ -1,0 +1,44 @@
+---
+version: "3.7"
+
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE}
+    networks:
+      - public
+    ports:
+      - target: 5432
+        published: ${POSTGRES_PORT:-5432}
+        mode: host
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT}
+      APPLICATION: ${APPLICATION}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    stop_grace_period: 20s
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 20s
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits:
+          cpus: '1'
+          memory: 256M
+        reservations:
+          cpus: '0.05'
+          memory: 128M
+
+networks:
+  public:
+    external: true
+
+volumes:
+  postgres:
