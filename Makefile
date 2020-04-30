@@ -27,7 +27,7 @@ start: start-portainer ## Stare server stacks
 	docker stack deploy whoami --compose-file=docker-compose.whoami.yaml
 
 start-portainer-local:
-	docker stack deploy portainer --compose-file=docker-compose.portainer.yaml
+	docker stack deploy portainer --compose-file=docker-compose.portainer.local.yaml
 
 start-local: start-portainer-local ## Stare local stacks
 	docker stack deploy traefik --compose-file=docker-compose.traefik.local.yaml
