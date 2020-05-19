@@ -4,3 +4,5 @@
 *.pem
 *.egg-info
 *.yml
+dist/
+__pycache__/
