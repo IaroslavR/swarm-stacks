@@ -1,5 +1,6 @@
 .idea
-/.env
-/.htpasswd
-/.mypy_cache/
-/traefik/*.pem
+.htpasswd
+.mypy_cache/
+*.pem
+*.egg-info
+*.yml

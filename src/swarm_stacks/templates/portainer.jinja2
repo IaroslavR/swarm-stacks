@@ -2,38 +2,44 @@ version: '3.7'
 
 services:
   portainer:
-    image: portainer/portainer:1.23.2
+    image: {{ image }}
     volumes:
-      - portainer:/data
+      - {{ volume_name }}:/data
     environment:
-      # can be generated like: date | md5sum
-      AGENT_SECRET: ${PORTAINER_AGENT_SECRET}
+{#
+can be generated manually this way:
+date | md5sum
+#}
+      AGENT_SECRET: {{ agent_secret }}
     networks:
-      - public
+      - {{ public_network }}
       - portainer
-#   WARNING! exposure of port to the 0.0.0.0,
-#   https://fralef.me/docker-and-iptables.html
-#   https://github.com/moby/moby/issues/32299
-#    ports:
-#      - target: 9000
-#        published: ${PORTAINER_PORT:-9000}
-#   can be generated like: htpasswd -nbB admin 'password' | cut -d ":" -f 2 | sed -e s/\\$/\\$\\$/g
+{#
+WARNING! exposure of port to the 0.0.0.0 can be security issue. See:
+https://fralef.me/docker-and-iptables.html
+https://github.com/moby/moby/issues/32299
+#}
+    ports:
+      - target: 9000
+        published: {{ port }}
+{#
+can be generated manually this way:
+htpasswd -nbB admin 'password' | cut -d ":" -f 2 | sed -e s/\\$/\\$\\$/g
+#}
     command: |
-      --admin-password ${PORTAINER_PASSWORD}
+      --admin-password {{ password_hash }}
     labels:
       traefik.enable: "true"
       traefik.http.routers.portainer-http.entrypoints: http
       traefik.http.routers.portainer-http.middlewares: redirect-to-https
       traefik.http.routers.portainer-http.rule: hostregexp(`{host:.+}`)
       traefik.http.routers.portainer.entrypoints: https
-      traefik.http.routers.portainer.rule: Host(`portainer.${TRAEFIK_HOST_NAME}`)
+      traefik.http.routers.portainer.rule: Host(`{{ traefik_host }}`)
       traefik.http.routers.portainer.service: portainer
-      traefik.http.routers.portainer.tls.certresolver: leresolver
       traefik.http.routers.portainer.tls: "true"
       traefik.http.services.portainer.loadbalancer.server.port: 9000
-
   agent:
-    image: portainer/agent
+    image: {{ agent_image }}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/volumes:/var/lib/docker/volumes
@@ -41,17 +47,17 @@ services:
       - portainer
     environment:
       AGENT_CLUSTER_ADDR: tasks.agent
-      AGENT_SECRET: ${PORTAINER_AGENT_SECRET}
+      AGENT_SECRET: {{ agent_secret }}
     deploy:
       mode: global
       placement:
         constraints: [node.platform.os == linux]
 
 volumes:
-  portainer:
+  {{ volume_name }}:
 
 networks:
-  public:
+  {{ public_network }}:
     external: true
   portainer:
     internal: true

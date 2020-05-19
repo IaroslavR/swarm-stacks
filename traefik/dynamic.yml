@@ -1,7 +1,0 @@
-tls:
-  options:
-    default:
-  #      sniStrict: true
-  certificates:
-    - certFile: /config/_wildcard.swarm.home.pem
-      keyFile: /config/_wildcard.swarm.home-key.pem
