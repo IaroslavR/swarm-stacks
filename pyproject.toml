@@ -36,6 +36,7 @@ dev = [
 
 [tool.poetry.scripts]
 portainer-stack = "swarm_stacks.portainer:program.run"
+postgres-stack = "swarm_stacks.postgres:program.run"
 
 [build-system]
 requires = ["poetry>=0.12"]
